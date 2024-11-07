@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+	<div class="content">
+		<h1 class='center'>Привет!</h1>
+		<p>Добро пожаловать на сайт #HEX! Здесь ты увидишь то, что не увидишь нигде.</p>
+		<p>#HEX - это коммьюнити программистов, дизайнеров</p>
+		<h2>Последние статьи</h2>
+
+		{% for article in articles %}
+			<div class="article">
+				<div class="article-header">
+					<h5>{{article.title}}</h5>
+					<span class="category" style='border: 1px solid var(--main-accent-color); border-radius: 15px; padding: 10px'>{{article.article_category}}</span>
+				</div>
+				<div class="intro">
+					<p>{{article.intro|safe}}</p>
+				</div>
+				<div class="footer">
+					<i>{{article.creation_date}}</i>
+					<a href="/article/{{article.id}}" class="article-link">Читать</a>
+				</div>
+			</div>
+			<br>
+		{% endfor %}
+	</div>
+</div>
+{% endblock %}

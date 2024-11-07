@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+	<div class="content">
+		<h1 class='center'>{{article.title}}</h1>
+		<span class="category" style='border: 1px solid var(--main-accent-color); border-radius: 15px; padding: 10px'>{{article.article_category}}</span>
+		<div class="tags">
+			<br>
+			<div class="tag">{%for tag in article.tags.split(" ")%}{{tag}} {% endfor %}</div>
+		</div>
+		<br>
+		<hr>
+		<br>
+		<div class="article-text" id='article-text'>{{text}}</div>
+		<br>
+		<hr>
+		<br>
+		<p>{{article.creation_date}}</p>
+	</div>
+</div>
+{% endblock %}
+
+{%block end%}
+<script>
+		const articletext = document.getElementById("article-text");
+		articletext.innerHTML = marked.parse(articletext.innerHTML);
+</script>
+{%endblock%}

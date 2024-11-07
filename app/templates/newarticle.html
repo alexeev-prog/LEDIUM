@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+	<div class="content">
+		<h1 class='center'>Новая статья</h1>
+
+	<!-- 	<div class="notification_buttons">
+			<button class="notification_button" onclick="showNotification('success', 'Успех!')">success</button>
+			<button class="notification_button" onclick="showNotification('warning', 'Предупреждение!')">warning</button>
+			<button class="notification_button" onclick="showNotification('error', 'Ошибка!')">error</button>
+			<button class="notification_button" onclick="showNotification('note', 'Заметка!')">note</button>
+		</div> -->
+
+		{% for flash in get_flashed_messages() %}
+			<script>showNotification('error', '{{flash}}')</script>
+		{%endfor%}
+
+		<form method='post' class='newarticle__form'>
+			<p>Введите заголовок статьи:</p>
+			<input type="text" name='title' class='newarticle__form-input'>
+			<p>Выберите категорию поста:</p>
+			<input type="text" name='category' class='newarticle__form-input' list="options">
+			<datalist id="options">
+				<option value="Туториал">
+				<option value="Обзор">
+				<option value="Топ">
+				<option value="Разное">
+			</datalist>
+			<p>Введите теги (через пробел):</p>
+			<input type="text" class="newarticle__form-input" name='tags'>
+			<p>Введение к статье:</p>
+			<textarea name="intro" class="newarticle__form-textarea"></textarea>
+			<p>Текст статьи (форматирование markdown):</p>
+			<div class="markdown-editor">
+				<div class="markdown-editor__toolbar">
+					<button type="button" class="markdown-editor__button" data-command="heading"><i>H1</i></button>
+					<button type="button" class="markdown-editor__button" data-command="heading2"><i>H2</i></button>
+					<button type="button" class="markdown-editor__button" data-command="heading3"><i>H3</i></button>
+					<button type="button" class="markdown-editor__button" data-command="heading4"><i>H4</i></button>
+					<button type="button" class="markdown-editor__button" data-command="heading5"><i>H5</i></button>
+					<button type="button" class="markdown-editor__button" data-command="heading6"><i>H6</i></button>
+					<div class="vertical-splitter"></div>
+					<button type="button" class="markdown-editor__button" data-command="bold"><i class="uil uil-bold"></i></button>
+					<button type="button" class="markdown-editor__button" data-command="italic"><i class="uil uil-italic"></i></button>
+					<button type="button" class="markdown-editor__button" data-command="link"><i class="uil uil-link"></i></button>
+					<button type="button" class="markdown-editor__button" data-command="image"><i class="uil uil-image"></i></button>
+					<button type="button" class="markdown-editor__button" data-command="quote"><i class="uil uil-comment-alt-dots"></i></button>
+					<button type="button" class="markdown-editor__button" data-command="code"><i class="uil uil-arrow"></i></button>
+					<button type="button" class="markdown-editor__button" data-command="unordered-list"><i class="uil uil-list-ul"></i></button>
+					<button type="button" class="markdown-editor__button" data-command="ordered-list"><i class="uil uil-list-ol"></i></button>
+					<button type="button" class="markdown-editor__button" data-command="horizontal-rule"><i class="uil uil-grip-horizontal-line"></i></button>
+				</div>
+				<textarea class="markdown-editor__input" name='content' id="editor"></textarea>
+				<h5 class='center'>Предпросмотр</h5>
+				<details class="markdown-editor__output" id="preview"><summary>Предпросмотр</summary></details>
+			</div>
+			<br>
+			<button class='newarticle__form-submit' type='submit'>Отправить</button>
+		</form>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block end %}
+<script>
+	if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+			showNotification('warning', 'Страница создания статьи недоступна в мобильной версии сайта. Блок текста статьи выключен.');
+		}
+
+document.addEventListener("DOMContentLoaded", function() {
+	const editor = document.getElementById("editor");
+	const preview = document.getElementById("preview");
+
+	document.querySelectorAll(".markdown-editor__button").forEach(button => {
+		button.addEventListener("click", () => {
+
+			const command = button.getAttribute('data-command');
+			executeCommand(command);
+		});
+	});
+
+	editor.addEventListener("input", updatePreview);
+	editor.addEventListener("blur", updatePreview);
+
+	function executeCommand(command) {
+		let selection = window.getSelection();
+		let selectedText = selection.toString();
+		let newText;
+
+		switch (command) {
+			case 'bold':
+				newText = `**${selectedText}**`;
+				break;
+			case 'italic':
+				newText = `*${selectedText}*`;
+				break;
+			case 'heading':
+				newText = `# ${selectedText}`;
+				break;
+			case 'heading2':
+				newText = `## ${selectedText}`;
+				break;
+			case 'heading3':
+				newText = `### ${selectedText}`;
+				break;
+			case 'heading4':
+				newText = `#### ${selectedText}`;
+				break;
+			case 'heading5':
+				newText = `##### ${selectedText}`;
+				break;
+			case 'heading6':
+				newText = `###### ${selectedText}`;
+				break;
+			case 'link':
+				const link = prompt("Введите URL");
+				newText = `[${selectedText}](${link})`;
+				break;
+			case 'image':
+				const imgUrl = prompt("Введите URL изображения");
+				newText = `![${selectedText}](${imgUrl})`;
+				break;
+			case 'quote':
+				newText = `> ${selectedText}`;
+				break;
+			case 'code':
+				newText = `\```${selectedText}\````;
+				break;
+			case 'unordered-list':
+				newText = `- ${selectedText}`;
+				break;
+			case 'ordered-list':
+				newText = `1. ${selectedText}`;
+				break;
+			case 'horizontal-rule':
+				newText = '---';
+				break;
+			default:
+				newText = selectedText;
+		}
+
+		if (newText) {
+			const start = editor.selectionStart;
+			const end = editor.selectionEnd;
+			editor.value = editor.value.substring(0, start) + newText + editor.value.substring(end);
+			editor.setSelectionRange(start + newText.length, start + newText.length);
+			updatePreview();
+		}
+	}
+
+	function updatePreview() {
+		const text = editor.value;
+		preview.innerHTML = marked.parse(text);
+	}
+});
+</script>
+{%endblock%}
